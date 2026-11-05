@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B4226">
+<title>Resumo dos pedidos · Uniforme Sunset Boulevard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--grass1:#0E4D2C;--grass2:#0B4226;--paper:#FFFFFF;--ink:#0F1B2D;--muted:#5A6577;--line:#DDE2E9;--gold:#F2C230;--navy:#0F1B2D;--soft:#F4F6F9}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:"Barlow",system-ui,sans-serif;line-height:1.45;background:radial-gradient(120% 50% at 50% -10%,rgba(255,255,255,.2),transparent 60%),repeating-linear-gradient(180deg,var(--grass1) 0 72px,var(--grass2) 72px 144px);background-color:var(--grass2);min-height:100vh}
+main{max-width:68rem;margin:0 auto;padding:2rem 1rem 3rem}
+.hero{color:#fff;margin-bottom:1rem;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem}
+.kicker{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-size:.85rem;margin:0}
+h1{font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:clamp(2.4rem,7vw,3.6rem);line-height:.95;margin:.2rem 0 0;letter-spacing:.01em}
+.upd{color:rgba(255,255,255,.75);font-size:.9rem;margin:.35rem 0 0}
+.tools{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{font:700 .95rem "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:.65rem 1.1rem;cursor:pointer;border:2px solid rgba(255,255,255,.7);background:transparent;color:#fff}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.status{color:#fff;font-size:.95rem;min-height:1.4em;margin:.25rem 0 1rem}
+.status.err{color:#FFC9BE;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.kpi{background:var(--navy);color:#fff;border-radius:12px;padding:.85rem 1rem;border-top:4px solid var(--gold)}
+.kpi b{display:block;font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:2.4rem;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.kpi span{font-family:"Barlow Condensed",sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:rgba(255,255,255,.8)}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--paper);border-radius:14px;padding:1.1rem 1.1rem 1.25rem;margin-bottom:1rem;box-shadow:0 14px 40px rgba(0,0,0,.25)}
+h2{font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:1.7rem;letter-spacing:.02em;margin:0 0 .2rem}
+.sub{color:var(--muted);margin:0 0 .8rem;font-size:.92rem}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{padding:.55rem .6rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:.82rem;color:#fff;background:var(--navy);white-space:nowrap}
+th:first-child{border-top-left-radius:8px} th:last-child{border-top-right-radius:8px}
+td.n,th.n{text-align:center;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:700;background:var(--soft)}
+td.zero{color:#B7BFCB}
+.dot{display:inline-block;width:.8rem;height:.8rem;border-radius:50%;margin-right:.45rem;vertical-align:-1px;border:1px solid rgba(0,0,0,.15)}
+.empty{color:var(--muted);padding:.6rem 0}
+.nome{font-weight:600}
+.hidden{display:none!important}
+@media print{
+  body{background:#fff}
+  main{max-width:none;padding:0}
+  .hero{color:var(--ink)} .upd{color:var(--muted)} .tools,.status{display:none}
+  .kpi{background:#fff;color:var(--ink);border:1px solid var(--line)} .kpi b{color:var(--ink)} .kpi span{color:var(--muted)}
+  .card{box-shadow:none;border:1px solid var(--line);break-inside:avoid}
+  th{background:#E9EDF2;color:var(--ink)}
+  tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <div>
+      <p class="kicker">Uniforme Sunset Boulevard · Temporada 2027</p>
+      <h1>Resumo dos pedidos</h1>
+      <p class="upd" id="upd">Carregando…</p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="btnAtualizar">Atualizar</button>
+      <button class="btn" id="btnImprimir">Imprimir / PDF</button>
+      <button class="btn gold" id="btnExcel">Baixar Excel</button>
+    </div>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <div id="conteudo" class="hidden">
+    <div class="kpis" id="kpis"></div>
+    <section class="card">
+      <h2>Resumo por cor e tamanho</h2>
+      <p class="sub">Quantidade total para fabricação.</p>
+      <div class="wrap"><table id="tResumo"></table></div>
+    </section>
+    <section class="card">
+      <h2>Camisas bege com nome e número</h2>
+      <p class="sub">O que vai estampado nas costas de cada camisa bege.</p>
+      <div class="wrap"><table id="tBege"></table></div>
+    </section>
+    <section class="card">
+      <h2>Lista por pessoa</h2>
+      <p class="sub">Cada pedido acompanha 01 calção.</p>
+      <div class="wrap"><table id="tLista"></table></div>
+    </section>
+  </div>
+</main>
+
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbz0HTRYMrXEEY8pjuguZppUgf9ztaEaIiuAwotNxJw94VEdG5oMP1JP0i1h-ap1PehE/exec';
+var CHAVE = (new URLSearchParams(location.hash.slice(1))).get('c') || '';
+var CORES = ['#1E2D5C', '#B3171E', '#D9C6A0'];
+var dados = null;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function brl(v){ return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+function setStatus(msg, erro){ var s = $('status'); s.textContent = msg; s.className = 'status' + (erro ? ' err' : ''); }
+function num(n){ return '<td class="n' + (n ? '' : ' zero') + '">' + (n || 0) + '</td>'; }
+
+function calcular(d){
+  var T = d.tamanhos, P = d.pedidos;
+  var tot = d.uniformes.map(function(){ return T.map(function(){ return 0; }); });
+  var calc = T.map(function(){ return 0; }), semCalcao = 0, camisas = 0, valor = 0, bege = [];
+  P.forEach(function(p){
+    p.itens.forEach(function(o, i){ T.forEach(function(t, j){ tot[i][j] += o[t] || 0; }); });
+    var k = T.indexOf(p.calcao); if (k >= 0) calc[k]++; else semCalcao++;
+    camisas += p.total; valor += p.valor;
+    T.forEach(function(t){ (p.pers[t] || []).forEach(function(x){ if (x.nome || x.numero) bege.push([t, x.nome, x.numero, p.nome]); }); });
+  });
+  return { T: T, P: P, U: d.uniformes, tot: tot, calc: calc, semCalcao: semCalcao, camisas: camisas, valor: valor, bege: bege };
+}
+function descItens(T, o){ return T.filter(function(t){ return o[t] > 0; }).map(function(t){ return o[t] + ' ' + t; }).join(', '); }
+function descPers(T, p){
+  var l = [];
+  T.forEach(function(t){ (p.pers[t] || []).forEach(function(x){ if (x.nome || x.numero) l.push(t + ': ' + [x.nome, x.numero].filter(Boolean).join(' ')); }); });
+  return l.join('; ');
+}
+
+function render(d){
+  var c = calcular(d), T = c.T;
+  $('upd').textContent = 'Atualizado em ' + d.atualizado;
+  $('kpis').innerHTML =
+    '<div class="kpi"><b>' + c.P.length + '</b><span>Pedidos</span></div>' +
+    '<div class="kpi"><b>' + c.camisas + '</b><span>Camisas</span></div>' +
+    '<div class="kpi"><b>' + c.P.length + '</b><span>Calções</span></div>' +
+    '<div class="kpi"><b>' + brl(c.valor) + '</b><span>Valor total</span></div>';
+
+  var h = '<thead><tr><th>Peça</th>' + T.map(function(t){ return '<th class="n">' + t + '</th>'; }).join('') + '<th class="n">Total</th></tr></thead><tbody>';
+  c.U.forEach(function(n, i){
+    var s = c.tot[i].reduce(function(a, b){ return a + b; }, 0);
+    h += '<tr><td class="nome"><span class="dot" style="background:' + CORES[i] + '"></span>' + esc(n) + '</td>' + c.tot[i].map(num).join('') + '<td class="n"><b>' + s + '</b></td></tr>';
+  });
+  var porTam = T.map(function(t, j){ return c.tot.reduce(function(a, l){ return a + l[j]; }, 0); });
+  h += '<tr class="total"><td>Total de camisas</td>' + porTam.map(num).join('') + '<td class="n">' + c.camisas + '</td></tr>';
+  h += '<tr><td class="nome">Calção' + (c.semCalcao ? ' <small>(' + c.semCalcao + ' sem tamanho)</small>' : '') + '</td>' + c.calc.map(num).join('') + '<td class="n"><b>' + c.P.length + '</b></td></tr>';
+  $('tResumo').innerHTML = h + '</tbody>';
+
+  $('tBege').innerHTML = c.bege.length
+    ? '<thead><tr><th>Tamanho</th><th>Nome nas costas</th><th class="n">Número</th><th>Comprador</th></tr></thead><tbody>' +
+      c.bege.map(function(l){ return '<tr><td>' + l[0] + '</td><td class="nome">' + (esc(l[1]) || '—') + '</td><td class="n">' + (esc(l[2]) || '—') + '</td><td>' + esc(l[3]) + '</td></tr>'; }).join('') + '</tbody>'
+    : '<tbody><tr><td class="empty">Nenhuma camisa bege personalizada até agora.</td></tr></tbody>';
+
+  $('tLista').innerHTML = c.P.length
+    ? '<thead><tr><th class="n">Nº</th><th>Comprador</th><th>Camisa azul</th><th>Camisa vermelha</th><th>Camisa bege</th><th>Nome e número (bege)</th><th class="n">Calção</th><th class="n">Camisas</th><th>Valor</th><th>Data</th></tr></thead><tbody>' +
+      c.P.map(function(p, i){
+        return '<tr><td class="n">' + (i + 1) + '</td><td class="nome">' + esc(p.nome) + '</td><td>' + (descItens(T, p.itens[0]) || '—') + '</td><td>' + (descItens(T, p.itens[1]) || '—') + '</td><td>' + (descItens(T, p.itens[2]) || '—') + '</td><td>' + (esc(descPers(T, p)) || '—') + '</td><td class="n">' + (p.calcao || '—') + '</td><td class="n">' + p.total + '</td><td>' + brl(p.valor) + '</td><td>' + esc(p.data) + '</td></tr>';
+      }).join('') + '</tbody>'
+    : '<tbody><tr><td class="empty">Nenhum pedido ainda.</td></tr></tbody>';
+  $('conteudo').classList.remove('hidden');
+}
+
+function carregar(){
+  if (!CHAVE) { setStatus('Link incompleto. Peça o link do resumo ao organizador.', true); $('upd').textContent = ''; return; }
+  setStatus('Carregando…');
+  fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ acao: 'acompanhamento', dados: CHAVE }) })
+    .then(function(r){ if (!r.ok) throw new Error(''); return r.json(); })
+    .then(function(j){ if (!j.ok) throw new Error(String(j.erro || '').replace(/^(Exception|Error|Erro):\s*/, '')); dados = j.dados; render(dados); setStatus(''); })
+    .catch(function(e){ setStatus((e && e.message) || 'Não foi possível carregar os pedidos. Tente de novo.', true); });
+}
+
+// Planilha para o fornecedor (abre no Excel com acentos e colunas certas)
+function baixarExcel(){
+  if (!dados) return;
+  var c = calcular(dados), T = c.T, linhas = [];
+  var cel = function(v){ v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+  var add = function(l){ linhas.push(l.map(cel).join(';')); };
+  add(['Uniforme Sunset Boulevard — pedido para fabricação', '', '', '', '', '', '', 'Gerado em', dados.atualizado]);
+  add(['Pedidos: ' + c.P.length, 'Camisas: ' + c.camisas, 'Calções: ' + c.P.length]);
+  add([]); add(['RESUMO POR COR E TAMANHO']);
+  add(['Peça'].concat(T, ['Total']));
+  c.U.forEach(function(n, i){ add([n].concat(c.tot[i], [c.tot[i].reduce(function(a, b){ return a + b; }, 0)])); });
+  add(['Calção'].concat(c.calc, [c.P.length]));
+  add([]); add(['CAMISAS BEGE COM NOME E NÚMERO NAS COSTAS']);
+  add(['Tamanho', 'Nome nas costas', 'Número', 'Comprador']);
+  if (c.bege.length) c.bege.forEach(function(l){ add(l); }); else add(['Nenhuma camisa bege personalizada.']);
+  add([]); add(['LISTA POR PESSOA']);
+  add(['Nº', 'Comprador', 'Camisa azul', 'Camisa vermelha', 'Camisa bege', 'Nome e número (bege)', 'Calção', 'Total de camisas', 'Valor', 'Data do pedido']);
+  c.P.forEach(function(p, i){ add([i + 1, p.nome, descItens(T, p.itens[0]), descItens(T, p.itens[1]), descItens(T, p.itens[2]), descPers(T, p), p.calcao || '—', p.total, brl(p.valor), p.data]); });
+  var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'uniforme-sunset-fornecedor.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+}
+
+$('btnAtualizar').addEventListener('click', carregar);
+$('btnImprimir').addEventListener('click', function(){ window.print(); });
+$('btnExcel').addEventListener('click', baixarExcel);
+carregar();
+</script>
+</body>
+</html>
