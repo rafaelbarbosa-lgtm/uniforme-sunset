@@ -151,7 +151,13 @@ footer{text-align:center;color:rgba(255,255,255,.55);font-size:.8rem;margin-top:
 .frase{font-family:"Bebas Neue",sans-serif;font-weight:400;color:var(--gold);text-align:center;font-size:clamp(2.2rem,9vw,4rem);line-height:.95;letter-spacing:.02em;margin:.5rem 0 0;max-width:14ch;text-shadow:0 4px 0 rgba(0,0,0,.35);opacity:0;transform:scale(.6)}
 .golazo.fim .frase{animation:frase .65s cubic-bezier(.2,1.5,.4,1) forwards}
 @keyframes frase{to{opacity:1;transform:scale(1)}}
-.confete{position:absolute;inset:0;pointer-events:none}
+.cena3d{position:absolute;inset:0;z-index:0}
+.golazo.modo3d .scene{display:none}
+.golazo.modo3d::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(3,8,20,.75) 100%)}
+.frase-box{position:relative;z-index:2;display:flex;justify-content:center}
+.golazo.modo3d .frase-box{position:absolute;left:0;right:0;bottom:9%;padding:0 1rem}
+.golazo.modo3d .frase{text-shadow:0 4px 18px rgba(0,0,0,.7),0 2px 0 rgba(0,0,0,.5);font-size:clamp(2.4rem,10vw,4.6rem)}
+.confete{position:absolute;inset:0;pointer-events:none;z-index:3}
 .confete i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:cai linear forwards}
 @keyframes cai{to{transform:translateY(110vh) rotate(720deg)}}
 @media (prefers-reduced-motion:reduce){.golazo .frase{opacity:1;transform:none}}
@@ -216,6 +222,7 @@ footer{text-align:center;color:rgba(255,255,255,.55);font-size:.8rem;margin-top:
 <div class="lb hidden" id="lb" role="dialog" aria-label="Foto ampliada"><img id="lbImg" alt=""></div>
 
 <div class="golazo hidden" id="golazo" aria-hidden="true">
+  <div class="cena3d" id="cena3d"></div>
   <div class="confete" id="confete"></div>
   <svg class="scene" viewBox="0 0 400 290" role="img" aria-label="Chute de perna direita e a bola entrando no ângulo do gol">
     <defs>
@@ -256,8 +263,15 @@ footer{text-align:center;color:rgba(255,255,255,.55);font-size:.8rem;margin-top:
       </g>
     </g>
   </svg>
-  <p class="frase" id="frase">Você faz parte do time de campeões!!!</p>
+  <div class="frase-box"><p class="frase" id="frase">Você faz parte do time de campeões!!!</p></div>
 </div>
+
+<script type="module">
+  // Carrega a cena 3D do gol em segundo plano; se falhar, a página usa a animação 2D.
+  setTimeout(async () => {
+    try { const m = await import('./gol3d.js'); if (m.suporta3D()) window.gol3d = m; } catch (e) {}
+  }, 800);
+</script>
 
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbz0HTRYMrXEEY8pjuguZppUgf9ztaEaIiuAwotNxJw94VEdG5oMP1JP0i1h-ap1PehE/exec';
@@ -425,14 +439,28 @@ function confete(){
   }
   $('confete').innerHTML = html;
 }
+var cena3d = null;
+function pararCena(){ if (cena3d) { try { cena3d.parar(); } catch (e) {} cena3d = null; } }
 function golazo(promessa){
   var el = $('golazo');
   var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   clearTimeout(timerGolazo);
+  pararCena();
   el.className = 'golazo'; void el.offsetWidth;
   el.setAttribute('aria-hidden', 'false');
-  if (!reduz) el.classList.add('play');
-  return Promise.all([promessa, espera(reduz ? 0 : 1900)]).then(function(res){
+  var golVisual = null;
+  if (!reduz && window.gol3d) {
+    try {
+      el.classList.add('modo3d');
+      cena3d = window.gol3d.iniciar($('cena3d'));
+      golVisual = cena3d.gol.then(function(){ return espera(380); });
+    } catch (e) { pararCena(); el.classList.remove('modo3d'); golVisual = null; }
+  }
+  if (!golVisual) {
+    if (!reduz) el.classList.add('play');
+    golVisual = espera(reduz ? 0 : 1900);
+  }
+  return Promise.all([promessa, golVisual]).then(function(res){
     el.classList.add('fim');
     if (!reduz) confete();
     timerGolazo = setTimeout(fecharGolazo, 3600);
@@ -444,7 +472,7 @@ function fecharGolazo(rapido){
   if (el.classList.contains('hidden')) return;
   clearTimeout(timerGolazo);
   el.classList.add('saindo');
-  setTimeout(function(){ el.className = 'golazo hidden'; el.setAttribute('aria-hidden', 'true'); $('confete').innerHTML = ''; }, rapido ? 0 : 400);
+  setTimeout(function(){ pararCena(); el.className = 'golazo hidden'; el.setAttribute('aria-hidden', 'true'); $('confete').innerHTML = ''; }, rapido ? 0 : 400);
 }
 $('golazo').addEventListener('click', function(){ if ($('golazo').classList.contains('fim')) fecharGolazo(); });
 
